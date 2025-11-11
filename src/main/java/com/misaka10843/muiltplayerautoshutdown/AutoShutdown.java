@@ -2,7 +2,7 @@ package com.misaka10843.muiltplayerautoshutdown;
 
 import com.misaka10843.muiltplayerautoshutdown.config.AutoShutdownConfig;
 import com.misaka10843.muiltplayerautoshutdown.events.PlayerEventHandler;
-import net.minecraft.commands.CommandDispatcher;
+import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +40,6 @@ public class AutoShutdown {
     public AutoShutdown(IEventBus modEventBus) {
         instance = this;
 
-        // Register config
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AutoShutdownConfig.COMMON_SPEC);
 
         modEventBus.addListener(this::commonSetup);
@@ -50,7 +49,6 @@ public class AutoShutdown {
         NeoForge.EVENT_BUS.addListener(PlayerEventHandler::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(PlayerEventHandler::onPlayerLoggedOut);
 
-        // Set up config directory
         File configDir = FMLPaths.CONFIGDIR.get().toFile();
         if (!configDir.exists()) {
             configDir.mkdirs();
@@ -73,7 +71,7 @@ public class AutoShutdown {
 
     private void onRegisterCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        com.autoshutdown.command.AutoShutdownCommand.register(dispatcher);
+        com.misaka10843.muiltplayerautoshutdown.command.AutoShutdownCommand.register(dispatcher);
     }
 
     public static AutoShutdown getInstance() {
@@ -97,8 +95,6 @@ public class AutoShutdown {
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
         int playerCount = players.size();
 
-        // For single player host, check if only host remains (count < 1 after removing host)
-        // For dedicated server, check if no players remain (count = 0)
         boolean shouldShutdown = isSinglePlayer ? playerCount <= 1 : playerCount == 0;
 
         if (shouldShutdown && !isCountingDown.get()) {
@@ -136,7 +132,7 @@ public class AutoShutdown {
                 }
             };
 
-            shutdownTimer.scheduleAtFixedRate(countdownTask, 0, 60 * 1000); // Every minute
+            shutdownTimer.scheduleAtFixedRate(countdownTask, 0, 60 * 1000);
         }
     }
 
@@ -152,25 +148,20 @@ public class AutoShutdown {
     private void executeShutdown(MinecraftServer server) {
         broadcastMessage(server, AutoShutdownConfig.messagePrefix.get() + "Saving world and shutting down...");
 
-        // Save the world
         server.saveAllChunks(true, true, true);
 
-        // Stop the timer
         stopShutdownTimer();
 
-        // Schedule shutdown to run after a short delay to ensure messages are sent
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                // Stop the server
                 server.halt(false);
 
-                // Optionally shutdown computer if enabled
                 if (AutoShutdownConfig.shutdownComputer.get()) {
                     shutdownComputer();
                 }
             }
-        }, 2000); // 2 second delay
+        }, 2000);
     }
 
     private void shutdownComputer() {
@@ -183,7 +174,6 @@ public class AutoShutdown {
             } else if (os.contains("mac")) {
                 pb = new ProcessBuilder("sudo", "shutdown", "-h", "+1");
             } else {
-                // Linux/Unix
                 pb = new ProcessBuilder("sudo", "shutdown", "-h", "+1");
             }
 
