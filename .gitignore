@@ -1,0 +1,40 @@
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+gradle-wrapper.properties.d/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+.metadata/
+
+# Visual Studio Code
+.vscode/
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+out/
+bin/
+dist/
+
+# IDE specific files
+*.swp
+*.swo
+*~
+.netbeans/
+
+# Minecraft
+run/
+runs/

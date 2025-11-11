@@ -6,7 +6,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = AutoShutdown.MOD_ID)
+@Mod.EventBusSubscriber(modid = AutoShutdown.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerEventHandler {
     
     @SubscribeEvent
